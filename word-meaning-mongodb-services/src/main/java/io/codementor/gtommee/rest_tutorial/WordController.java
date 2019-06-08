@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -39,12 +41,30 @@ public class WordController {
   @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
   public void modifyPetById(@PathVariable("id") String id, @Valid @RequestBody Word Word) {
     Word.set_id(id);
+    Word.setLastModified(new Date());
+    repository.save(Word);
+  }
+  
+  @RequestMapping(value = "/{id}/markRead", method = RequestMethod.PUT)
+  public void markRead(@PathVariable("id") String id, @Valid @RequestBody Word Word) {
+    Word.set_id(id);
+    Word.setLastRead(new Date());
+    Word.addReadHistory(new Date());
+    repository.save(Word);
+  }
+  
+  @RequestMapping(value = "/{id}/addTag", method = RequestMethod.PUT)
+  public void addTag(@PathVariable("id") String id,@PathVariable("tag") String tag, @Valid @RequestBody Word Word) {
+    Word.set_id(id);
+    Word.setLastModified(new Date());
+    Word.addTag(tag);
     repository.save(Word);
   }
   
   @RequestMapping(value = "/", method = RequestMethod.POST)
   public Word createPet(@Valid @RequestBody Word Word) {
     Word.set_id(ObjectId.get().toHexString());
+    Word.setCreatedDate(new Date());
     repository.save(Word);
     return Word;
   }
@@ -53,6 +73,7 @@ public class WordController {
   public List<Word> createPet(@Valid @RequestBody List<Word> Wordilist) {
 	  for(Word Word:Wordilist){
 		  Word.set_id(ObjectId.get().toHexString());
+		  Word.setCreatedDate(new Date());
 		    repository.save(Word);
 	  }
     
